@@ -30,21 +30,21 @@ rules.heading_open = function(tokens, idx)
 
                 currentSection = {
                     id: "",
-                    title: "",
+                    title: tokens[idx+1].content,
                     intro: "",
                     subtopics: []
                 }
-                currentSection.title = tokens[idx+1].content;
+
                 output.name[0].sections.push(currentSection);
                 break;
         
             case 2:
                 
                 currentSubtopic = {
-                    title: "",
+                    title: tokens[idx+1].content,
                     blocks: []
                 }
-                currentSubtopic.title = tokens[idx+1].content;
+                
                 currentSection.subtopics.push(currentSubtopic);
                 break;
 
@@ -54,11 +54,27 @@ rules.heading_open = function(tokens, idx)
     }
     level++;
     return '';
-}
+};
 
 rules.heading_close = function (tokens, idx)
 {
     level --;
+    return '';
+};
+
+rules.paragraph_open = function(tokens, idx)
+{
+    block = {
+        type: "text",
+        value: tokens[idx+1].content
+    }
+
+    currentSubtopic.blocks.push(block);
+    return '';
+};
+
+rules.paragraph_close = function(tokens, idx)
+{
     return '';
 }
 
@@ -70,8 +86,7 @@ rules.code = function(tokens, idx)
         codeBlock: "single"
     }
 
-    currentSubtopic.push(block);
-    
+    currentSubtopic.blocks.push(block);
     return '';
 };
 
@@ -83,8 +98,7 @@ rules.fence = function(tokens, idx, options, env, instance)
         codeBlock: "multi"
     }
 
-    currentSubtopic.push(block);
-    
+    currentSubtopic.blocks.push(block);
     return '';
 };
 
