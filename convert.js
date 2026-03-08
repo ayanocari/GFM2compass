@@ -20,15 +20,17 @@ let currentSubtopic = null;
 let level = 0;
 
 function addBlock(location, block){
-    if (location == null){
-        if (location == currentSubtopic.blocks){
-            addBlock(currentSection.sections, block);
-        } else if (location == currentSection.subtopics){
-            addBlock(output.name[0].sections);
-        }
-    } else {
+    if (location) {
         location.push(block);
+        return;
     }
+
+    if (currentSection){
+        currentSection.subtopics.push(block);
+        return;
+    }
+
+    output.name[0].sections.push(block);
 }
 
 rules.heading_open = function(tokens, idx)
@@ -48,7 +50,7 @@ rules.heading_open = function(tokens, idx)
                     subtopics: []
                 }
 
-                output.name[0].sections.push(currentSection);
+                addBlock(output.name[0].sections, currentSection);
                 break;
         
             case 2:
@@ -58,7 +60,7 @@ rules.heading_open = function(tokens, idx)
                     blocks: []
                 }
 
-                currentSection.subtopics.push(currentSubtopic);
+                addBlock(currentSection ? currentSection.subtopics : null, currentSubtopic);
                 break;
 
             default:
@@ -82,7 +84,7 @@ rules.paragraph_open = function(tokens, idx)
         value: tokens[idx+1].content
     }
 
-    currentSubtopic.blocks.push(block);
+    addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
     return '';
 };
 
@@ -99,7 +101,7 @@ rules.code = function(tokens, idx)
         codeBlock: "single"
     }
 
-    currentSubtopic.blocks.push(block);
+    addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
     return '';
 };
 
@@ -111,7 +113,7 @@ rules.fence = function(tokens, idx, options, env, instance)
         codeBlock: "multi"
     }
 
-    currentSubtopic.blocks.push(block);
+    addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
     return '';
 };
 
