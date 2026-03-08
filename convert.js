@@ -17,7 +17,6 @@ let output = {
 
 let currentSection = null;
 let currentSubtopic = null;
-let level = 0;
 
 function addBlock(location, block){
     if (location) {
@@ -35,45 +34,43 @@ function addBlock(location, block){
 
 rules.heading_open = function(tokens, idx)
 {
-    if (level == 0){
-        output.name[0].topic = tokens[idx+1].content;
-    } else {
+    const level = tokens[idx].hLevel;
+    const title = tokens[idx+1].content;
 
-        switch (level) 
-        {
-            case 1:
-
-                currentSection = {
-                    id: "",
-                    title: tokens[idx+1].content,
-                    intro: "",
-                    subtopics: []
-                }
-
-                addBlock(output.name[0].sections, currentSection);
-                break;
-        
-            case 2:
-                
-                currentSubtopic = {
-                    title: tokens[idx+1].content,
-                    blocks: []
-                }
-
-                addBlock(currentSection ? currentSection.subtopics : null, currentSubtopic);
-                break;
-
-            default:
-                break;
-        }
+    if (level === 1){
+        output.name[0].topic = title;
+        currentSection = null;
+        curretnSubtopic = null;
+        return '';
     }
-    level++;
+
+    if (level === 2){
+        currentSection = {
+            id: "",
+            title: title,
+            subtopics: []
+        };
+
+        addBlock(output.name[0].sections, currentSection);
+        currentSubtopic = null;
+        return '';
+    }
+
+    if (level === 3){
+        currentSubtopic = {
+            title: title, 
+            blocks: []
+        };
+
+        addBlock(currentSection ? currentSection.subtopics : null, currentSubtopic);
+        return '';
+    }
+
     return '';
 };
 
 rules.heading_close = function (tokens, idx)
 {
-    level --;
     return '';
 };
 
