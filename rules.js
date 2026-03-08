@@ -1,7 +1,4 @@
-function overrideRules(rules, addBlock, output, refs) {
-    
-    let currentSection = refs.currentSection;
-    let currentSubtopic = refs.currentSubtopic;
+function overrideRules(rules, addBlock, addSubtopic, addSection, output, refs) {
 
     const keep = [
         "heading_open",
@@ -9,6 +6,8 @@ function overrideRules(rules, addBlock, output, refs) {
         "code",
         "fence"
     ];
+
+    let sectionCounter = 1;
 
     for (const ruleName in rules){
 
@@ -24,31 +23,32 @@ function overrideRules(rules, addBlock, output, refs) {
         const title = tokens[idx+1].content;
 
         if (level === 1){
-            output.name[0].topic = title;
-            currentSection = null;
-            currentSubtopic = null;
+            output.compass[0].topic = title;
+            refs.currentSection = null;
+            refs.currentSubtopic = null;
             return '';
         }
 
         if (level === 2){
-            currentSection = {
-                id: "",
+            refs.currentSection = {
+                id: sectionCounter++,
                 title: title,
+                intro: "",
                 subtopics: []
             };
 
-            addBlock(output.name[0].sections, currentSection);
-            currentSubtopic = null;
+            addSection(refs.currentSection);
+            refs.currentSubtopic = null;
             return '';
         }
 
         if (level === 3){
-            currentSubtopic = {
+            refs.currentSubtopic = {
                 title: title, 
                 blocks: []
             };
 
-            addBlock(currentSection ? currentSection.subtopics : null, currentSubtopic);
+            addSubtopic(refs.currentSubtopic);
             return '';
         }
 
@@ -62,7 +62,7 @@ function overrideRules(rules, addBlock, output, refs) {
             value: tokens[idx+1].content
         }
 
-        addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
+        addBlock(block);
         return '';
     };
 
@@ -74,11 +74,11 @@ function overrideRules(rules, addBlock, output, refs) {
             codeBlock: "single"
         }
 
-        addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
+        addBlock(block);
         return '';
     };
 
-    rules.fence = function(tokens, idx, options, env, instance)
+    rules.fence = function(tokens, idx)
     {    
         block = {
             type: "code",
@@ -86,7 +86,7 @@ function overrideRules(rules, addBlock, output, refs) {
             codeBlock: "multi"
         }
 
-        addBlock(currentSubtopic ? currentSubtopic.blocks : null, block);
+        addBlock(block);
         return '';
     };
 }

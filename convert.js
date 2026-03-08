@@ -2,11 +2,12 @@ const { Remarkable } = require('remarkable');
 const overrideRules = require('./rules');
 const output = require('./output');
 const fs = require('fs');
+const path = require('path');
 
 var md = new Remarkable();
 
 let resultJSON = {
-    name: [
+    compass: [
         {
             topic: "",
             sections: []
@@ -19,26 +20,61 @@ const refs = {
     currentSubtopic: null
 };
 
-let currentSection = refs.currentSection;
-let currentSubtopic = refs.currentSubtopic;
+function addSection(section){
+    
+    if (!section || typeof section !== 'object') return;
 
-function addBlock(location, block){
-    if (location) {
-        location.push(block);
-        return;
-    }
-
-    if (currentSection){
-        currentSection.subtopics.push(block);
-        return;
-    }
-
-    resultJSON.name[0].sections.push(block);
+    resultJSON.compass[0].sections.push(section);
 }
 
-overrideRules(md.renderer.rules, addBlock, resultJSON, refs);
+function addSubtopic(subtopic){
 
-const markdown = fs.readFileSync('input.md', 'utf-8');
+    if (!subtopic || typeof subtopic !== 'object') return;
+
+    refs.currentSection.subtopics.push(subtopic);
+
+}
+
+function addBlock(block){
+
+    if (!block || typeof block !== 'object') return;
+
+    if (refs.currentSubtopic) {
+        refs.currentSubtopic.blocks.push(block);
+        return;
+    }
+
+    if (refs.currentSection){
+        refs.currentSubtopic = {
+            title: "General",
+            blocks: [block]
+        };
+        refs.currentSection.subtopics.push(refs.currentSubtopic);
+        return;
+    }
+
+    refs.currentSection = {
+        id: "general",
+        title: "General",
+        intro: "",
+        subtopics: []
+    };
+
+    addSection(refs.currentSection);
+
+    refs.currentSubtopic = {
+        title: "General",
+        blocks: [block]
+    };
+
+    addSubtopic(refs.currentSubtopic);
+    
+}
+
+overrideRules(md.renderer.rules, addBlock, addSubtopic, addSection, resultJSON, refs);
+
+const inputPath = path.join(__dirname, 'input.md');
+const markdown = fs.readFileSync(inputPath, 'utf-8');
 md.render(markdown);
 
 output(resultJSON);
