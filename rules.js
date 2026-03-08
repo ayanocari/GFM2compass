@@ -7,8 +7,6 @@ function overrideRules(rules, addBlock, addSubtopic, addSection, output, refs) {
         "fence"
     ];
 
-    let sectionCounter = 1;
-
     for (const ruleName in rules){
 
         if (!keep.includes(ruleName)){
@@ -31,7 +29,7 @@ function overrideRules(rules, addBlock, addSubtopic, addSection, output, refs) {
 
         if (level === 2){
             refs.currentSection = {
-                id: sectionCounter++,
+                id: "",
                 title: title,
                 intro: "",
                 subtopics: []

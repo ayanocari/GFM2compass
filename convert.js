@@ -20,9 +20,12 @@ const refs = {
     currentSubtopic: null
 };
 
+let sectionCounter = 1;
+
 function addSection(section){
     
     if (!section || typeof section !== 'object') return;
+    section.id = sectionCounter++;
 
     resultJSON.compass[0].sections.push(section);
 }
@@ -46,7 +49,7 @@ function addBlock(block){
 
     if (refs.currentSection){
         refs.currentSubtopic = {
-            title: "General",
+            title: "",
             blocks: [block]
         };
         refs.currentSection.subtopics.push(refs.currentSubtopic);
@@ -54,8 +57,8 @@ function addBlock(block){
     }
 
     refs.currentSection = {
-        id: "general",
-        title: "General",
+        id: sectionCounter++,
+        title: "",
         intro: "",
         subtopics: []
     };
@@ -63,7 +66,7 @@ function addBlock(block){
     addSection(refs.currentSection);
 
     refs.currentSubtopic = {
-        title: "General",
+        title: "",
         blocks: [block]
     };
 
