@@ -18,6 +18,23 @@ let output = {
 let currentSection = null;
 let currentSubtopic = null;
 
+const keep = [
+        "heading_open",
+        "heading_close",
+        "paragraph_open",
+        "paragraph_close",
+        "code",
+        "fence"
+    ];
+
+for (const ruleName in rules){
+
+    if (!keep.includes(ruleName)){
+        rules[ruleName] = () => '';
+    }
+
+}
+
 function addBlock(location, block){
     if (location) {
         location.push(block);
