@@ -1,4 +1,5 @@
 const { Remarkable } = require('remarkable');
+
 var md = new Remarkable();
 
 var rules = md.renderer.rules;
@@ -17,6 +18,18 @@ let output = {
 let currentSection = null;
 let currentSubtopic = null;
 let level = 0;
+
+function addBlock(location, block){
+    if (location == null){
+        if (location == currentSubtopic.blocks){
+            addBlock(currentSection.sections, block);
+        } else if (location == currentSection.subtopics){
+            addBlock(output.name[0].sections);
+        }
+    } else {
+        location.push(block);
+    }
+}
 
 rules.heading_open = function(tokens, idx)
 {
@@ -44,7 +57,7 @@ rules.heading_open = function(tokens, idx)
                     title: tokens[idx+1].content,
                     blocks: []
                 }
-                
+
                 currentSection.subtopics.push(currentSubtopic);
                 break;
 
@@ -102,6 +115,10 @@ rules.fence = function(tokens, idx, options, env, instance)
     return '';
 };
 
+const fs = require('fs');
+const markdown = fs.readFileSync('input.md', 'utf-8');
 
+md.render(markdown);
 
+console.log(JSON.stringify(output, null, 2));
 
